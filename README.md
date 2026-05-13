@@ -71,7 +71,6 @@ Use any open port, but keep the Valet proxy target and Vite port aligned. If no 
 
 ```sh
 npm run dev --port="{desiredPort}"
-PORT="{desiredPort}" npm run dev
 npm run build
 npm run lint
 npm run preview
