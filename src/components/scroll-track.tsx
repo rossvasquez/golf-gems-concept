@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react"
 
+import { GeoMetaCard } from "@/components/geo-meta-card"
+import { isScrollTrackLocked } from "@/lib/scroll-track-lock"
 import { useStoryStore } from "@/stores/use-story-store"
 
 function clamp(value: number) {
@@ -7,12 +9,6 @@ function clamp(value: number) {
 }
 
 const MIN_STEP_DWELL_MS = 3_200
-
-let scrollTrackLockUntil = 0
-
-export function lockScrollTrack(durationMs: number) {
-  scrollTrackLockUntil = Math.max(scrollTrackLockUntil, Date.now() + durationMs)
-}
 
 export function ScrollTrack() {
   const sectionRefs = useRef<Array<HTMLDivElement | null>>([])
@@ -40,7 +36,7 @@ export function ScrollTrack() {
       const progress = (window.scrollY - start) / Math.max(end - start, 1)
       setScrollProgress(clamp(progress))
 
-      if (Date.now() < scrollTrackLockUntil) {
+      if (isScrollTrackLocked()) {
         return
       }
 
@@ -153,8 +149,15 @@ export function ScrollTrack() {
             sectionRefs.current[index + 1] = node
           }}
           data-step-index={index}
-          className="h-[360svh]"
-        />
+          className="relative h-[360svh]"
+        >
+          <div className="sticky top-16 flex h-[calc(100svh-4rem)] items-center justify-center px-4 py-20 md:justify-start md:px-9">
+            <GeoMetaCard
+              isCameraAnchor={activeStepIndex === index}
+              step={step}
+            />
+          </div>
+        </div>
       ))}
 
       <div className="h-[60svh]" />

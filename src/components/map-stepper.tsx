@@ -1,7 +1,7 @@
 import { Flag } from "lucide-react";
 import { useEffect, type MouseEventHandler } from "react";
 
-import { lockScrollTrack } from "@/components/scroll-track";
+import { lockScrollTrack } from "@/lib/scroll-track-lock";
 import { useStoryStore } from "@/stores/use-story-store";
 import { cn } from "@/lib/utils";
 

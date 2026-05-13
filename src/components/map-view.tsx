@@ -4,7 +4,6 @@ import mapboxgl, { type GeoJSONSource, type LngLatBoundsLike } from "mapbox-gl"
 import { AlertTriangle } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 
-import { GeoMetaCard } from "@/components/geo-meta-card"
 import { LocationPrompt } from "@/components/location-prompt"
 import { MapStepper } from "@/components/map-stepper"
 import { useStoryStore } from "@/stores/use-story-store"
@@ -15,7 +14,7 @@ const ACTIVE_FILL_LAYER_ID = "active-course-fill"
 const ACTIVE_LINE_LAYER_ID = "active-course-line"
 
 function mapViewportForOverlays() {
-  const card = document.querySelector<HTMLElement>("[data-map-card]")
+  const card = document.querySelector<HTMLElement>('[data-map-card="active"]')
   const cardRect = card?.getBoundingClientRect()
   const isMobile = window.innerWidth < 768
 
@@ -254,7 +253,7 @@ export function MapView() {
     const frame = window.setTimeout(flyToActiveStep, 80)
 
     return () => window.clearTimeout(frame)
-  }, [activeStep, isMapReady, isStoryStarted])
+  }, [activeStep, isMapReady, isStoryStarted, userLocation])
 
   if (!token) {
     return (
@@ -309,9 +308,9 @@ export function MapView() {
           <div className="pointer-events-none absolute inset-0 bg-emerald-950/10 backdrop-blur-[1px]" />
           <LocationPrompt />
         </div>
-      ) : (
+      ) : activeStep ? null : (
         <div className="pointer-events-none absolute inset-x-0 bottom-5 z-30 flex justify-center px-4 md:inset-y-0 md:left-5 md:right-auto md:items-center md:justify-start">
-          {activeStep ? <GeoMetaCard step={activeStep} /> : <LocationPrompt />}
+          <LocationPrompt />
         </div>
       )}
     </section>

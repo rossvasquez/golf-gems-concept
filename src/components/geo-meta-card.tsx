@@ -1,9 +1,11 @@
 import { ExternalLink, Flag, Route } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import type { CourseStep } from "@/types/geo"
 
 type GeoMetaCardProps = {
+  isCameraAnchor?: boolean
   step: CourseStep | null
 }
 
@@ -20,7 +22,7 @@ function stat(value: string | number, label: string) {
   )
 }
 
-export function GeoMetaCard({ step }: GeoMetaCardProps) {
+export function GeoMetaCard({ isCameraAnchor = true, step }: GeoMetaCardProps) {
   if (!step) {
     return null
   }
@@ -30,8 +32,11 @@ export function GeoMetaCard({ step }: GeoMetaCardProps) {
   return (
     <aside
       key={step.id}
-      data-map-card
-      className="pointer-events-auto w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 md:slide-in-from-left-4"
+      data-map-card={isCameraAnchor ? "active" : undefined}
+      className={cn(
+        "pointer-events-auto w-full max-w-md",
+        !isCameraAnchor && "opacity-90",
+      )}
     >
       <div className="border border-emerald-900/20 bg-background/95 p-5 shadow-2xl shadow-emerald-950/20 backdrop-blur-xl">
         <div className="flex items-start justify-between gap-4">
