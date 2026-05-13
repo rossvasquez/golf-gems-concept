@@ -1,4 +1,4 @@
-import { Flag, MapPinned, Trophy } from "lucide-react";
+import { Flag, MapPinned } from "lucide-react";
 
 export function Header() {
   return (
