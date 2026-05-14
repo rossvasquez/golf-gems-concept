@@ -1,12 +1,22 @@
-import dummyGeo from "@/data/dummy-geo.json"
 import type { Position } from "geojson"
 
 import type {
   CourseFeature,
   CourseFeatureCollection,
+  CourseRecord,
   CourseStep,
   LngLatTuple,
 } from "@/types/geo"
+
+export function courseIdFromProperties(properties: {
+  name: string
+  order: number
+}) {
+  return `${properties.order}-${properties.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")}`
+}
 
 function coordinateRings(feature: CourseFeature): Position[][] {
   if (feature.geometry.type === "Polygon") {
@@ -14,6 +24,12 @@ function coordinateRings(feature: CourseFeature): Position[][] {
   }
 
   return feature.geometry.coordinates.flat()
+}
+
+export function firstCoordinate(feature: CourseFeature): LngLatTuple {
+  const [lng, lat] = coordinateRings(feature)[0][0]
+
+  return [lng, lat]
 }
 
 function computeBounds(feature: CourseFeature): [LngLatTuple, LngLatTuple] {
@@ -34,14 +50,30 @@ function computeCenter(bounds: [LngLatTuple, LngLatTuple]): LngLatTuple {
   ]
 }
 
-function toCourseStep(feature: CourseFeature): CourseStep {
+export function toCourseRecord(feature: CourseFeature): CourseRecord {
+  return {
+    id: courseIdFromProperties(feature.properties),
+    type: "Feature",
+    properties: feature.properties,
+    geometry: feature.geometry,
+    order: feature.properties.order,
+    name: feature.properties.name,
+  }
+}
+
+export function recordToCourseFeature(record: CourseRecord): CourseFeature {
+  return {
+    type: "Feature",
+    properties: record.properties,
+    geometry: record.geometry,
+  }
+}
+
+export function toCourseStep(feature: CourseFeature): CourseStep {
   const bounds = computeBounds(feature)
 
   return {
-    id: `${feature.properties.rank}-${feature.properties.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")}`,
+    id: courseIdFromProperties(feature.properties),
     feature,
     properties: feature.properties,
     bounds,
@@ -49,11 +81,34 @@ function toCourseStep(feature: CourseFeature): CourseStep {
   }
 }
 
-export function getCourseSteps(): CourseStep[] {
-  const collection = dummyGeo as CourseFeatureCollection
-
+export function collectionToCourseRecords(
+  collection: CourseFeatureCollection,
+): CourseRecord[] {
   return collection.features
     .slice()
-    .sort((a, b) => a.properties.rank - b.properties.rank)
+    .sort((a, b) => a.properties.order - b.properties.order)
+    .map(toCourseRecord)
+}
+
+export function recordsToFeatureCollection(
+  records: CourseRecord[],
+): CourseFeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: records
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .map(recordToCourseFeature),
+  }
+}
+
+export function featuresToCourseSteps(features: CourseFeature[]): CourseStep[] {
+  return features
+    .slice()
+    .sort((a, b) => a.properties.order - b.properties.order)
     .map(toCourseStep)
+}
+
+export function recordsToCourseSteps(records: CourseRecord[]): CourseStep[] {
+  return recordsToFeatureCollection(records).features.map(toCourseStep)
 }

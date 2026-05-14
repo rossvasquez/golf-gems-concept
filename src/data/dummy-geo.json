@@ -13,7 +13,7 @@
         "slope_rating": 155,
         "course_rating": 79.1,
         "link_out": "https://kiawahresort.com/golf/the-ocean-course/",
-        "rank": 1
+        "order": 1
       },
       "geometry": {
         "type": "Polygon",
@@ -68,7 +68,7 @@
         "slope_rating": 148,
         "course_rating": 76.8,
         "link_out": "https://www.theharvesterclub.com/",
-        "rank": 2
+        "order": 2
       },
       "geometry": {
         "type": "Polygon",
@@ -151,7 +151,7 @@
         "slope_rating": 144,
         "course_rating": 71.4,
         "link_out": "https://caledoniagolfandfishclub.com/",
-        "rank": 3
+        "order": 3
       },
       "geometry": {
         "type": "Polygon",

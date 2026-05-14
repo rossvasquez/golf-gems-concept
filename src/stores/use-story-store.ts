@@ -1,19 +1,21 @@
 import { create } from "zustand"
 
-import { getCourseSteps } from "@/lib/geo"
 import type { CourseStep, LngLatTuple } from "@/types/geo"
 
 type LocationStatus = "idle" | "requesting" | "granted" | "denied" | "skipped"
+type CourseDataStatus = "loading" | "ready" | "error"
 
 type CurrentStepSnapshot = {
   id: string
   index: number
   name: string
-  rank: number
+  order: number
 }
 
 type StoryState = {
   steps: CourseStep[]
+  courseDataStatus: CourseDataStatus
+  courseDataError: string | null
   activeStepIndex: number | null
   currentStepSnapshot: CurrentStepSnapshot | null
   locationStatus: LocationStatus
@@ -21,6 +23,11 @@ type StoryState = {
   isStoryStarted: boolean
   scrollProgress: number
   activeStepProgress: number
+  setCourseData: (
+    steps: CourseStep[],
+    status: CourseDataStatus,
+    error?: string | null,
+  ) => void
   startWithLocation: () => Promise<void>
   startWithoutLocation: () => void
   setActiveStep: (index: number | null) => void
@@ -30,29 +37,33 @@ type StoryState = {
   previousStep: () => void
 }
 
-const courseSteps = getCourseSteps()
-
-function clampStep(index: number) {
-  return Math.max(0, Math.min(index, courseSteps.length - 1))
+function clampStep(index: number, steps: CourseStep[]) {
+  return Math.max(0, Math.min(index, Math.max(steps.length - 1, 0)))
 }
 
-function stepSnapshot(index: number | null): CurrentStepSnapshot | null {
-  if (index === null) {
+function stepSnapshot(
+  index: number | null,
+  steps: CourseStep[],
+): CurrentStepSnapshot | null {
+  if (index === null || steps.length === 0) {
     return null
   }
 
-  const step = courseSteps[clampStep(index)]
+  const nextIndex = clampStep(index, steps)
+  const step = steps[nextIndex]
 
   return {
     id: step.id,
-    index: clampStep(index),
+    index: nextIndex,
     name: step.properties.name,
-    rank: step.properties.rank,
+    order: step.properties.order,
   }
 }
 
 export const useStoryStore = create<StoryState>((set, get) => ({
-  steps: courseSteps,
+  steps: [],
+  courseDataStatus: "loading",
+  courseDataError: null,
   activeStepIndex: null,
   currentStepSnapshot: null,
   locationStatus: "idle",
@@ -60,6 +71,30 @@ export const useStoryStore = create<StoryState>((set, get) => ({
   isStoryStarted: false,
   scrollProgress: 0,
   activeStepProgress: 0,
+  setCourseData: (steps, status, error = null) => {
+    const { activeStepIndex, courseDataError, courseDataStatus } = get()
+
+    if (
+      get().steps === steps &&
+      courseDataStatus === status &&
+      courseDataError === error
+    ) {
+      return
+    }
+
+    const nextIndex =
+      activeStepIndex === null || steps.length === 0
+        ? null
+        : clampStep(activeStepIndex, steps)
+
+    set({
+      steps,
+      courseDataStatus: status,
+      courseDataError: error,
+      activeStepIndex: nextIndex,
+      currentStepSnapshot: stepSnapshot(nextIndex, steps),
+    })
+  },
   startWithLocation: async () => {
     if (!navigator.geolocation) {
       set({
@@ -124,11 +159,13 @@ export const useStoryStore = create<StoryState>((set, get) => ({
     })
   },
   setActiveStep: (index) => {
-    const nextIndex = index === null ? null : clampStep(index)
+    const { steps } = get()
+    const nextIndex =
+      index === null || steps.length === 0 ? null : clampStep(index, steps)
 
     set({
       activeStepIndex: nextIndex,
-      currentStepSnapshot: stepSnapshot(nextIndex),
+      currentStepSnapshot: stepSnapshot(nextIndex, steps),
     })
   },
   setScrollProgress: (progress) => {
@@ -138,26 +175,31 @@ export const useStoryStore = create<StoryState>((set, get) => ({
     set({ activeStepProgress: Math.max(0, Math.min(progress, 1)) })
   },
   nextStep: () => {
-    const { activeStepIndex } = get()
-    const nextIndex = clampStep((activeStepIndex ?? -1) + 1)
+    const { activeStepIndex, steps } = get()
+
+    if (steps.length === 0) {
+      return
+    }
+
+    const nextIndex = clampStep((activeStepIndex ?? -1) + 1, steps)
 
     set({
       activeStepIndex: nextIndex,
-      currentStepSnapshot: stepSnapshot(nextIndex),
+      currentStepSnapshot: stepSnapshot(nextIndex, steps),
     })
   },
   previousStep: () => {
-    const { activeStepIndex } = get()
+    const { activeStepIndex, steps } = get()
     if (activeStepIndex === null || activeStepIndex === 0) {
       set({ activeStepIndex: null, currentStepSnapshot: null })
       return
     }
 
-    const nextIndex = clampStep(activeStepIndex - 1)
+    const nextIndex = clampStep(activeStepIndex - 1, steps)
 
     set({
       activeStepIndex: nextIndex,
-      currentStepSnapshot: stepSnapshot(nextIndex),
+      currentStepSnapshot: stepSnapshot(nextIndex, steps),
     })
   },
 }))

@@ -10,7 +10,7 @@ export type CourseProperties = {
   slope_rating: number
   course_rating: number
   link_out: string
-  rank: number
+  order: number
 }
 
 export type CourseGeometry = Polygon | MultiPolygon
@@ -30,4 +30,20 @@ export type CourseStep = {
   properties: CourseProperties
   bounds: [LngLatTuple, LngLatTuple]
   center: LngLatTuple
+}
+
+export type CourseRecord = {
+  id: string
+  type: "Feature"
+  properties: CourseProperties
+  geometry: CourseGeometry
+  order: number
+  name: string
+}
+
+export type SeedMeta = {
+  key: string
+  sourceHash: string
+  recordCount: number
+  importedAt: string
 }

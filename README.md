@@ -12,6 +12,8 @@ The point of the POC is the interaction model more than the final content: a ful
 - Playfair Display and Noto Sans for typography
 - Lucide React for icons
 - Zustand for story and map state orchestration
+- Dexie and Dexie React Hooks for IndexedDB-backed local persistence
+- Zod for runtime schema validation and typed data parsing
 - Mapbox GL JS for the map, fly transitions, and GeoJSON rendering
 
 ## POC Content
@@ -73,12 +75,16 @@ Use any open port, but keep the Valet proxy target and Vite port aligned. If no 
 npm run dev --port="{desiredPort}"
 npm run build
 npm run lint
+npm run test
 npm run preview
 ```
+
+## Geo Data Cache
+
+On first load, the app fetches [src/data/dummy-geo.json](/Users/rossv/code/iawa-map-poc/src/data/dummy-geo.json) as a mocked API response, validates it with Zod, and writes one course record per GeoJSON feature into IndexedDB. Later reads come from Dexie via `dexie-react-hooks`; unchanged seed data is skipped using local seed metadata.
 
 ## Notes
 
 - Restart Vite after changing `.env.local`; Vite reads `VITE_*` variables at server start.
 - Keep `VITE_APP_URL` aligned with the Valet hostname so the app can warn when Mapbox token origin restrictions may block tiles.
 - Update [src/data/dummy-geo.json](/Users/rossv/code/iawa-map-poc/src/data/dummy-geo.json) with valid GeoJSON `FeatureCollection` data when replacing the sample course content.
-- The current implementation is intentionally local/static. Moving beyond the POC likely means adding real course data ingestion, richer step controls, keyboard stepping, and stronger tests around map/store behavior.

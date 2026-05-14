@@ -1,13 +1,17 @@
-import { ExternalLink, Flag, Route } from "lucide-react"
+import { ExternalLink, Flag, MapPin, Route } from "lucide-react";
+import { useMemo } from "react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import type { CourseStep } from "@/types/geo"
+import { haversineMiles } from "@/lib/distance";
+import { firstCoordinate } from "@/lib/geo";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useStoryStore } from "@/stores/use-story-store";
+import type { CourseStep } from "@/types/geo";
 
 type GeoMetaCardProps = {
-  isCameraAnchor?: boolean
-  step: CourseStep | null
-}
+  isCameraAnchor?: boolean;
+  step: CourseStep | null;
+};
 
 function stat(value: string | number, label: string) {
   return (
@@ -19,15 +23,26 @@ function stat(value: string | number, label: string) {
         {label}
       </p>
     </div>
-  )
+  );
 }
 
 export function GeoMetaCard({ isCameraAnchor = true, step }: GeoMetaCardProps) {
+  const userLocation = useStoryStore((state) => state.userLocation);
+  const milesAway = useMemo(() => {
+    if (!userLocation || !step) {
+      return null;
+    }
+
+    return Math.round(
+      haversineMiles(userLocation, firstCoordinate(step.feature)),
+    ).toLocaleString();
+  }, [step, userLocation]);
+
   if (!step) {
-    return null
+    return null;
   }
 
-  const course = step.properties
+  const course = step.properties;
 
   return (
     <aside
@@ -39,21 +54,25 @@ export function GeoMetaCard({ isCameraAnchor = true, step }: GeoMetaCardProps) {
       )}
     >
       <div className="border border-emerald-900/20 bg-background/95 p-5 shadow-2xl shadow-emerald-950/20 backdrop-blur-xl">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-800">
+        <div className="flex justify-between items-center flex-wrap gap-3">
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-800">
               <Flag className="size-3.5" aria-hidden="true" />
-              Gem #{course.rank}
+              Gem #{course.order}
+          </p>
+          {milesAway ? (
+            <p className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground/70">
+              <MapPin className="size-3" aria-hidden="true" />
+              {milesAway} miles away
             </p>
-            <h2 className="mt-3 font-serif text-3xl leading-none text-foreground">
-              {course.name}
-            </h2>
-            <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Route className="size-4 text-emerald-700" aria-hidden="true" />
-              Designed by {course.designer}
-            </p>
-          </div>
+          ) : null}
         </div>
+        <h2 className="mt-3 font-serif text-3xl leading-none text-foreground">
+          {course.name}
+        </h2>
+        <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          <Route className="size-4 text-emerald-700" aria-hidden="true" />
+          Designed by {course.designer}
+        </p>
 
         <p className="mt-5 text-sm leading-6 text-foreground">
           {course.description}
@@ -78,5 +97,5 @@ export function GeoMetaCard({ isCameraAnchor = true, step }: GeoMetaCardProps) {
         </Button>
       </div>
     </aside>
-  )
+  );
 }

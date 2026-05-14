@@ -76,6 +76,8 @@ export function MapView() {
   const activeStepIndex = useStoryStore((state) => state.activeStepIndex)
   const userLocation = useStoryStore((state) => state.userLocation)
   const isStoryStarted = useStoryStore((state) => state.isStoryStarted)
+  const courseDataStatus = useStoryStore((state) => state.courseDataStatus)
+  const courseDataError = useStoryStore((state) => state.courseDataError)
   const token = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
   const configuredAppUrl = import.meta.env.VITE_APP_URL as string | undefined
   const configuredOrigin = configuredAppUrl
@@ -118,7 +120,17 @@ export function MapView() {
       zoom: 3.7,
     })
 
-    const resizeMap = () => map.resize()
+    let resizeFrame = 0
+    const resizeMap = () => {
+      if (mapRef.current !== map || !containerRef.current?.isConnected) {
+        return
+      }
+
+      map.resize()
+    }
+    const queueResize = () => {
+      resizeFrame = window.requestAnimationFrame(resizeMap)
+    }
 
     map.addControl(new mapboxgl.AttributionControl({ compact: true }))
     map.on("load", () => {
@@ -126,7 +138,7 @@ export function MapView() {
       setMapError(null)
       setIsMapReady(true)
       resizeMap()
-      window.requestAnimationFrame(resizeMap)
+      queueResize()
     })
     map.on("error", (event) => {
       const error = event.error
@@ -142,9 +154,10 @@ export function MapView() {
 
     mapRef.current = map
     window.addEventListener("resize", resizeMap)
-    window.requestAnimationFrame(resizeMap)
+    queueResize()
 
     return () => {
+      window.cancelAnimationFrame(resizeFrame)
       window.removeEventListener("resize", resizeMap)
       userMarkerRef.current?.remove()
       map.remove()
@@ -282,11 +295,17 @@ export function MapView() {
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-32 bg-gradient-to-b from-emerald-950/35 to-transparent" />
 
-      {!isMapReady || mapError ? (
+      {!isMapReady || mapError || courseDataStatus !== "ready" ? (
         <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center px-4">
           <div className="max-w-md border border-white/15 bg-emerald-950/85 p-5 text-white shadow-2xl backdrop-blur-xl">
             <p className="font-serif text-2xl leading-none">
-              {mapError ?? "Loading the map..."}
+              {mapError ??
+                courseDataError ??
+                (!isMapReady
+                  ? "Loading the map..."
+                  : courseDataStatus === "loading"
+                    ? "Loading course data..."
+                    : "No course data found.")}
             </p>
           </div>
         </div>
@@ -308,11 +327,7 @@ export function MapView() {
           <div className="pointer-events-none absolute inset-0 bg-emerald-950/10 backdrop-blur-[1px]" />
           <LocationPrompt />
         </div>
-      ) : activeStep ? null : (
-        <div className="pointer-events-none absolute inset-x-0 bottom-5 z-30 flex justify-center px-4 md:inset-y-0 md:left-5 md:right-auto md:items-center md:justify-start">
-          <LocationPrompt />
-        </div>
-      )}
+      ) : null}
     </section>
   )
 }

@@ -17,6 +17,8 @@ This is a POC application intended to achieve the following.
 - This is a modern static React/TypeScript application powered by Vite.
 - You should always utilize TailwindCSS.
 - Zustand has been imported for state management. Utilize elegant state orchestration over polluting components with useState.
+- Dexie and `dexie-react-hooks` have been imported for IndexedDB-backed local persistence. Prefer Dexie for browser-side persisted data instead of hand-rolled storage wrappers.
+- Zod has been imported for runtime schema validation and typed data parsing. Prefer Zod schemas at data boundaries, especially for local GeoJSON/data imports or any future fetched content.
 - ShadCN has been initialized with the Sera preset. Utilize Playfair Display and Noto Sans as well as Lucide Icons. You may publish components with `npx shadcn@latest add {lowercase-component}`. Here is a list of available components:
   - Accordion
   - Alert
