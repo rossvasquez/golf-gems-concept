@@ -62,7 +62,7 @@ export function emptyCourseProperties(order: number): CourseProperties {
     name: "",
     designer: "",
     description: "",
-    ross_comments: "",
+    personal_anecdote: "",
     par: 72,
     yardage: 7000,
     slope_rating: 120,

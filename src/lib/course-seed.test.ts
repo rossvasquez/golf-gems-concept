@@ -59,7 +59,7 @@ describe("course seed import", () => {
         name: "Admin Course",
         designer: "Local Admin",
         description: "Local admin record",
-        ross_comments: "Saved locally",
+        personal_anecdote: "Saved locally",
         par: 72,
         yardage: 7000,
         slope_rating: 120,

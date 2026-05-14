@@ -52,7 +52,7 @@ export const coursePropertiesSchema = z
     name: z.string().trim().min(1),
     designer: z.string().trim().min(1),
     description: z.string().trim().min(1),
-    ross_comments: z.string().trim().min(1),
+    personal_anecdote: z.string().trim().min(1),
     par: z.number().int().positive(),
     yardage: z.number().int().positive(),
     slope_rating: z.number().int().positive(),
@@ -72,9 +72,33 @@ const legacyCoursePropertiesSchema = coursePropertiesSchema
     order: rank,
   }))
 
+const legacyAnecdoteCoursePropertiesSchema = coursePropertiesSchema
+  .omit({ personal_anecdote: true })
+  .extend({
+    ross_comments: z.string().trim().min(1),
+  })
+  .transform(({ ross_comments, ...properties }) => ({
+    ...properties,
+    personal_anecdote: ross_comments,
+  }))
+
+const legacyRankAndAnecdoteCoursePropertiesSchema = coursePropertiesSchema
+  .omit({ order: true, personal_anecdote: true })
+  .extend({
+    rank: z.number().int().positive(),
+    ross_comments: z.string().trim().min(1),
+  })
+  .transform(({ rank, ross_comments, ...properties }) => ({
+    ...properties,
+    order: rank,
+    personal_anecdote: ross_comments,
+  }))
+
 const importCoursePropertiesSchema = z.union([
   coursePropertiesSchema,
   legacyCoursePropertiesSchema,
+  legacyAnecdoteCoursePropertiesSchema,
+  legacyRankAndAnecdoteCoursePropertiesSchema,
 ])
 
 export const courseFeatureSchema = z

@@ -56,7 +56,7 @@ describe("geo schema service", () => {
         name: "Test Course",
         designer: "Designer",
         description: "Description",
-        ross_comments: "Commentary",
+        personal_anecdote: "Commentary",
         par: 72,
         yardage: 7000,
         slope_rating: 140,
@@ -108,5 +108,21 @@ describe("geo schema service", () => {
 
     expect(record.order).toBe(1)
     expect(record.properties.order).toBe(1)
+  })
+
+  it("normalizes legacy imported ross comments to personal anecdote", () => {
+    const input = structuredClone(dummyGeo)
+
+    input.features[0].properties = {
+      ...input.features[0].properties,
+      ross_comments: "Legacy commentary",
+    } as never
+    delete (input.features[0].properties as Partial<Record<string, unknown>>)
+      .personal_anecdote
+
+    const [record] = importGeoJsonToRecords(input)
+
+    expect(record.properties.personal_anecdote).toBe("Legacy commentary")
+    expect("ross_comments" in record.properties).toBe(false)
   })
 })

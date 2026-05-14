@@ -32,3 +32,34 @@ db.version(2)
       delete legacyRecord.rank
     })
   })
+
+db.version(3)
+  .stores({
+    courses: "id, order, name",
+    seedMeta: "key",
+  })
+  .upgrade(async (transaction) => {
+    const courses = transaction.table("courses")
+
+    await courses.toCollection().modify((record) => {
+      const legacyProperties = record.properties as
+        | {
+            ross_comments?: string
+            personal_anecdote?: string
+          }
+        | undefined
+
+      if (!legacyProperties) {
+        return
+      }
+
+      if (
+        legacyProperties.personal_anecdote === undefined &&
+        legacyProperties.ross_comments !== undefined
+      ) {
+        legacyProperties.personal_anecdote = legacyProperties.ross_comments
+      }
+
+      delete legacyProperties.ross_comments
+    })
+  })

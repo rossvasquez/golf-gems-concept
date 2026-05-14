@@ -71,7 +71,7 @@ function formValuesFromProperties(properties: CourseProperties): CourseFormValue
     name: properties.name,
     designer: properties.designer,
     description: properties.description,
-    ross_comments: properties.ross_comments,
+    personal_anecdote: properties.personal_anecdote,
     par: String(properties.par),
     yardage: String(properties.yardage),
     slope_rating: String(properties.slope_rating),
@@ -86,7 +86,7 @@ function propertiesFromForm(values: CourseFormValues): CourseProperties {
     name: values.name,
     designer: values.designer,
     description: values.description,
-    ross_comments: values.ross_comments,
+    personal_anecdote: values.personal_anecdote,
     par: Number(values.par),
     yardage: Number(values.yardage),
     slope_rating: Number(values.slope_rating),
@@ -246,7 +246,7 @@ function CourseForm({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(28rem,1.1fr)]">
+    <div className="grid gap-6">
       <section className="border border-emerald-950/10 bg-background p-5 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -263,8 +263,8 @@ function CourseForm({
           </Button>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+        <div className="mt-6 grid gap-4 md:grid-cols-6">
+          <div className="md:col-span-4">
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -273,7 +273,7 @@ function CourseForm({
             />
             {fieldError(errors, "name")}
           </div>
-          <div>
+          <div className="md:col-span-2">
             <Label htmlFor="designer">Designer</Label>
             <Input
               id="designer"
@@ -282,7 +282,7 @@ function CourseForm({
             />
             {fieldError(errors, "designer")}
           </div>
-          <div>
+          <div className="md:col-span-1">
             <Label htmlFor="order">Rank</Label>
             <Input
               id="order"
@@ -293,7 +293,7 @@ function CourseForm({
             />
             {fieldError(errors, "order")}
           </div>
-          <div>
+          <div className="md:col-span-1">
             <Label htmlFor="par">Par</Label>
             <Input
               id="par"
@@ -304,7 +304,7 @@ function CourseForm({
             />
             {fieldError(errors, "par")}
           </div>
-          <div>
+          <div className="md:col-span-2">
             <Label htmlFor="yardage">Yardage</Label>
             <Input
               id="yardage"
@@ -315,7 +315,7 @@ function CourseForm({
             />
             {fieldError(errors, "yardage")}
           </div>
-          <div>
+          <div className="md:col-span-1">
             <Label htmlFor="slope_rating">Slope Rating</Label>
             <Input
               id="slope_rating"
@@ -328,7 +328,7 @@ function CourseForm({
             />
             {fieldError(errors, "slope_rating")}
           </div>
-          <div>
+          <div className="md:col-span-1">
             <Label htmlFor="course_rating">Course Rating</Label>
             <Input
               id="course_rating"
@@ -342,7 +342,7 @@ function CourseForm({
             />
             {fieldError(errors, "course_rating")}
           </div>
-          <div className="sm:col-span-2">
+          <div className="md:col-span-6">
             <Label htmlFor="link_out">Course URL</Label>
             <Input
               id="link_out"
@@ -351,7 +351,7 @@ function CourseForm({
             />
             {fieldError(errors, "link_out")}
           </div>
-          <div className="sm:col-span-2">
+          <div className="md:col-span-3">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
@@ -360,16 +360,47 @@ function CourseForm({
             />
             {fieldError(errors, "description")}
           </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="ross_comments">Ross Comments</Label>
+          <div className="md:col-span-3">
+            <Label htmlFor="personal_anecdote">Personal Anecdote</Label>
             <Textarea
-              id="ross_comments"
-              value={values.ross_comments}
+              id="personal_anecdote"
+              value={values.personal_anecdote}
               onChange={(event) =>
-                setField("ross_comments", event.target.value)
+                setField("personal_anecdote", event.target.value)
               }
             />
-            {fieldError(errors, "ross_comments")}
+            {fieldError(errors, "personal_anecdote")}
+          </div>
+          <div className="md:col-span-6">
+            <div className="border-t border-emerald-950/10 pt-5">
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+                Geometry
+              </p>
+              <h3 className="mt-2 font-serif text-3xl leading-none">
+                Draw the course polygon
+              </h3>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
+                Use the polygon tool to trace the course. Keep one polygon
+                active for this proof of concept.
+              </p>
+              <div className="mt-5">
+                <AdminDrawMap
+                  geometry={mode.type === "edit" ? mode.record.geometry : null}
+                  onGeometryChange={handleGeometryChange}
+                />
+              </div>
+              {errors.geometry ? (
+                <p className="mt-3 text-sm leading-6 text-red-700">
+                  {errors.geometry}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  {geometry
+                    ? "Polygon ready to save."
+                    : "No polygon drawn yet."}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -382,34 +413,6 @@ function CourseForm({
             {isSaving ? "Saving..." : "Save feature"}
           </Button>
         </div>
-      </section>
-
-      <section className="border border-emerald-950/10 bg-background p-5 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
-          Geometry
-        </p>
-        <h2 className="mt-2 font-serif text-3xl leading-none">
-          Draw the course polygon
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Use the polygon tool to trace the course. Keep one polygon active for
-          this proof of concept.
-        </p>
-        <div className="mt-5">
-          <AdminDrawMap
-            geometry={mode.type === "edit" ? mode.record.geometry : null}
-            onGeometryChange={handleGeometryChange}
-          />
-        </div>
-        {errors.geometry ? (
-          <p className="mt-3 text-sm leading-6 text-red-700">
-            {errors.geometry}
-          </p>
-        ) : (
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            {geometry ? "Polygon ready to save." : "No polygon drawn yet."}
-          </p>
-        )}
       </section>
     </div>
   )

@@ -4,7 +4,7 @@ export type CourseProperties = {
   name: string
   designer: string
   description: string
-  ross_comments: string
+  personal_anecdote: string
   par: number
   yardage: number
   slope_rating: number

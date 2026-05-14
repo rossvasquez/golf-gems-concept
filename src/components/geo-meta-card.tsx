@@ -79,7 +79,7 @@ export function GeoMetaCard({ isCameraAnchor = true, step }: GeoMetaCardProps) {
         </p>
 
         <blockquote className="mt-4 border-l-2 border-emerald-500 pl-4 text-sm leading-6 text-muted-foreground">
-          {course.ross_comments}
+          {course.personal_anecdote}
         </blockquote>
 
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">

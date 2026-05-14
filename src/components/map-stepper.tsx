@@ -1,4 +1,10 @@
-import { ArrowBigLeft, ArrowBigRight, Command, PlusIcon } from "lucide-react";
+import {
+  ArrowBigLeft,
+  ArrowBigRight,
+  Command,
+  FootprintsIcon,
+  PlusIcon,
+} from "lucide-react";
 import { useEffect, useMemo, type MouseEventHandler } from "react";
 
 import { lockScrollTrack } from "@/lib/scroll-track-lock";
@@ -158,23 +164,24 @@ export function MapStepper() {
           aria-live="polite"
           className="flex items-center gap-2 px-3 py-1.5 text-white/80 backdrop-blur-sm"
         >
-          <Command className="size-5" aria-hidden="true" />
-          <PlusIcon className="size-4" aria-hidden="true" />
+          <Command className="size-4" aria-hidden="true" />
+          <PlusIcon className="size-3" aria-hidden="true" />
           <div className="flex gap-1">
-            <ArrowBigLeft className="size-5" aria-hidden="true" />
-            <ArrowBigRight className="size-5" aria-hidden="true" />
+            <ArrowBigLeft className="size-4" aria-hidden="true" />
+            <ArrowBigRight className="size-4" aria-hidden="true" />
           </div>
           <span className="sr-only">
             Hold Command and use arrow keys to navigate steps
           </span>
         </div>
       </div>
-      <div className="flex gap-3 w-full pr-10 justify-end items-start">
+      <div className="flex gap-3 w-full justify-end items-start">
         <a
-          className="pointer-events-auto border border-white/20 bg-emerald-950/35 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-white/80 shadow-lg shadow-emerald-950/10 backdrop-blur-md transition-colors hover:bg-emerald-950/40 hover:text-white focus:bg-emerald-950/55 focus:text-white focus:outline-none focus:ring-2 focus:ring-white/40"
+          className="pointer-events-auto flex gap-2 border border-white/20 bg-emerald-950/35 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-white/80 shadow-lg shadow-emerald-950/10 backdrop-blur-md transition-colors hover:bg-emerald-950/40 hover:text-white focus:bg-emerald-950/55 focus:text-white focus:outline-none focus:ring-2 focus:ring-white/40"
           href="#story-complete"
           onClick={skipToComplete}
         >
+          <FootprintsIcon className="size-4" aria-hidden="true" />
           Skip to end
         </a>
       </div>

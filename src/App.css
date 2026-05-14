@@ -121,3 +121,7 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+.mapboxgl-ctrl-bottom-right {
+  display: none;
+}
