@@ -79,6 +79,29 @@ npm run test
 npm run preview
 ```
 
+## Docker
+
+Build the production image with the same `VITE_*` variables used locally:
+
+```sh
+docker build \
+  --build-arg VITE_APP_URL=https://your-app.example.com \
+  --build-arg VITE_MAPBOX_TOKEN=your_mapbox_public_token \
+  -t iawa-map-poc .
+```
+
+Run it behind nginx on port `8080`:
+
+```sh
+docker run --rm -p 8080:80 iawa-map-poc
+```
+
+The repo includes:
+
+- `Dockerfile`: multi-stage Node-to-nginx production build
+- `nginx/default.conf`: static serving with SPA fallback to `index.html`
+- `.dockerignore`: excludes local build artifacts, VCS data, and private env files from the build context
+
 ## Geo Data Cache
 
 On first load, the app fetches [src/data/dummy-geo.json](/Users/rossv/code/iawa-map-poc/src/data/dummy-geo.json) as a mocked API response, validates it with Zod, and writes one course record per GeoJSON feature into IndexedDB. Later reads come from Dexie via `dexie-react-hooks`; unchanged seed data is skipped using local seed metadata.
